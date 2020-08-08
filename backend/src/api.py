@@ -82,12 +82,16 @@ def get_drinks_detail(jwt):
 def add_drink(jwt):
     if "title" not in request.get_json() or request.get_json()["title"] == "" or "recipe" not in request.get_json() or request.get_json()["recipe"] == "":
         abort(400)
+    exists = Drink.query.filter_by(
+        title=request.get_json()["title"]).one_or_none()
+    if exists:
+        abort(400)
     drink = Drink(title=request.get_json()[
                   "title"], recipe=json.dumps(request.get_json()["recipe"]))
     drink.insert()
     response = {
         "success": True,
-        "drinks": [drink.short()]
+        "drinks": [drink.long()]
     }
     return jsonify(response)
 
@@ -214,3 +218,12 @@ def internal(error):
         "error": 500,
         "message": "Internal Server Error."
     }), 500
+
+
+@ app.errorhandler(400)
+def invalid(error):
+    return jsonify({
+        "success": False,
+        "error": 400,
+        "message": "Invalid Data."
+    }), 400
