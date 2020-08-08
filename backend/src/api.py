@@ -80,11 +80,10 @@ def get_drinks_detail(jwt):
 @app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
 def add_drink(jwt):
-    print(request.get_json())
     if "title" not in request.get_json() or request.get_json()["title"] == "" or "recipe" not in request.get_json() or request.get_json()["recipe"] == "":
         abort(400)
     drink = Drink(title=request.get_json()[
-                  "title"], recipe=request.get_json()["recipe"])
+                  "title"], recipe=json.dumps(request.get_json()["recipe"]))
     drink.insert()
     response = {
         "success": True,
@@ -124,7 +123,7 @@ Example error handling for unprocessable entity
 '''
 
 
-@app.errorhandler(422)
+@ app.errorhandler(422)
 def unprocessable(error):
     return jsonify({
         "success": False,
@@ -137,7 +136,7 @@ def unprocessable(error):
 @TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
              jsonify({
-                    "success": False, 
+                    "success": False,
                     "error": 404,
                     "message": "resource not found"
                     }), 404
@@ -146,11 +145,11 @@ def unprocessable(error):
 
 '''
 @TODO implement error handler for 404
-    error handler should conform to general task above 
+    error handler should conform to general task above
 '''
 
 
-@app.errorhandler(404)
+@ app.errorhandler(404)
 def notfound(error):
     return jsonify({
         "success": False,
@@ -161,11 +160,11 @@ def notfound(error):
 
 '''
 @TODO implement error handler for AuthError
-    error handler should conform to general task above 
+    error handler should conform to general task above
 '''
 
 
-@app.errorhandler(401)
+@ app.errorhandler(401)
 def unauthorized(error):
     return jsonify({
         "success": False,
@@ -174,7 +173,7 @@ def unauthorized(error):
     }), 401
 
 
-@app.errorhandler(500)
+@ app.errorhandler(500)
 def internal(error):
     return jsonify({
         "success": False,
