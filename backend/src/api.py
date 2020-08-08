@@ -77,6 +77,22 @@ def get_drinks_detail(jwt):
 '''
 
 
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def add_drink(jwt):
+    print(request.get_json())
+    if "title" not in request.get_json() or request.get_json()["title"] == "" or "recipe" not in request.get_json() or request.get_json()["recipe"] == "":
+        abort(400)
+    drink = Drink(title=request.get_json()[
+                  "title"], recipe=request.get_json()["recipe"])
+    drink.insert()
+    response = {
+        "success": True,
+        "drinks": [drink.short()]
+    }
+    return jsonify(response)
+
+
 '''
 @TODO implement endpoint
     PATCH /drinks/<id>
