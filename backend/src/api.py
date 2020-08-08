@@ -105,6 +105,25 @@ def add_drink(jwt):
 '''
 
 
+@app.route("/drinks/<id>", methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drink(jwt,id):
+    drink = Drink.query.filter_by(id=id).one_or_none()
+    if drink is None:
+        abort(404)
+    if "title" not in request.get_json() or request.get_json()["title"] == "" or "recipe" not in request.get_json() or request.get_json()["recipe"] == "":
+        abort(400)
+    drink.title = request.get_json()["title"]
+    drink.recipe = json.dumps(request.get_json()["recipe"])
+    drink.update()
+
+    response = {
+        "success": True,
+        "drinks": [drink.long()]
+    }
+    return jsonify(response)
+
+
 '''
 @TODO implement endpoint
     DELETE /drinks/<id>
