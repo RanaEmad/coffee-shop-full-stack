@@ -52,6 +52,20 @@ def get_drinks():
 '''
 
 
+@app.route("/drinks-detail")
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(jwt):
+    drinks = Drink.query.all()
+    formatted_drinks = []
+    for drink in drinks:
+        formatted_drinks.append(drink.long())
+    response = {
+        "success": True,
+        "drinks": formatted_drinks
+    }
+    return jsonify(response)
+
+
 '''
 @TODO implement endpoint
     POST /drinks

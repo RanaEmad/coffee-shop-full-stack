@@ -1,11 +1,11 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'coffee-shop-full-stack.auth0.com'
+AUTH0_DOMAIN = 'coffee-shop-full-stack.us.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'http://localhost:5000'
 
@@ -109,7 +109,18 @@ def check_permissions(permission, payload):
 
 
 def verify_decode_jwt(token):
-    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+    # try:
+    #     url = 'https://'+AUTH0_DOMAIN+'/.well-known/jwks.json'
+    #     url = 'https://coffee-shop-full-stack.us.auth0.com/.well-known/jwks.json'
+    #     print(url)
+    #     jsonurl = urlopen(url)
+    #     print(jsonurl)
+    #     jwks = json.loads(jsonurl.read())
+    #     print(jwks)
+    # except:
+    # print("in")
+    url = 'https://'+AUTH0_DOMAIN+'/.well-known/jwks.json'
+    jsonurl = urlopen(url)
     jwks = json.loads(jsonurl.read())
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
@@ -118,7 +129,6 @@ def verify_decode_jwt(token):
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
-
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -178,9 +188,12 @@ def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            token = get_token_auth_header()
-            payload = verify_decode_jwt(token)
-            check_permissions(permission, payload)
+            try:
+                token = get_token_auth_header()
+                payload = verify_decode_jwt(token)
+                check_permissions(permission, payload)
+            except:
+                abort(401)
             return f(payload, *args, **kwargs)
 
         return wrapper
