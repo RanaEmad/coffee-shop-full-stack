@@ -115,10 +115,10 @@ def update_drink(jwt, id):
     drink = Drink.query.filter_by(id=id).one_or_none()
     if drink is None:
         abort(404)
-    if "title" not in request.get_json() or request.get_json()["title"] == "" or "recipe" not in request.get_json() or request.get_json()["recipe"] == "":
-        abort(400)
-    drink.title = request.get_json()["title"]
-    drink.recipe = json.dumps(request.get_json()["recipe"])
+    if "title" in request.get_json():
+        drink.title = request.get_json()["title"]
+    if "recipe" in request.get_json():
+        drink.recipe = json.dumps(request.get_json()["recipe"])
     drink.update()
 
     response = {
